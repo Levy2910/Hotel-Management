@@ -3,15 +3,14 @@ package com.example.hotelmanagement.Service;
 import com.example.hotelmanagement.Model.Room;
 import com.example.hotelmanagement.Repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.sql.rowset.serial.SerialBlob;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Blob;
 import java.sql.SQLException;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,15 +18,11 @@ public class RoomService implements IRoomService{
     private final RoomRepository roomRepository;
 
     @Override
-    public Room addNewRoom(MultipartFile photo, String roomType, BigDecimal roomPrice) throws IOException, SQLException {
+    public Room addNewRoom(String photo, String roomType, BigDecimal roomPrice) throws IOException, SQLException {
         Room room = new Room();
         room.setRoomType(roomType);
         room.setRoomPrice(roomPrice);
-        if (!photo.isEmpty()){
-            byte[] photoBytes = photo.getBytes();
-            Blob photoBlob = new SerialBlob(photoBytes);
-            room.setPhoto(photoBlob);
-        }
+        room.setPhoto(photo);
         return roomRepository.save(room);
     }
 
@@ -42,9 +37,25 @@ public class RoomService implements IRoomService{
 
     @Override
     public Room updateRoom(Long roomID, Object[] param) {
-        if ()
-        return null;
+        if (param.length < 3) {
+            throw new IllegalArgumentException("Insufficient parameters provided");
+        }
+
+        Optional<Room> roomOptional = roomRepository.findById(roomID);
+        Room foundRoom = roomOptional.orElseThrow(() -> new NoSuchElementException("Room not found"));
+
+        try {
+            foundRoom.setPhoto((String) param[0]);
+            foundRoom.setRoomPrice((BigDecimal) param[1]);
+            foundRoom.setRoomType((String) param[2]);
+            return roomRepository.save(foundRoom); // Return the updated room
+        } catch (ClassCastException | DataAccessException e) {
+            // Handle potential exceptions like ClassCastException or DataAccessException
+            throw new IllegalArgumentException("Invalid parameter types or database issue");
+        }
     }
+
+
 
 
 }

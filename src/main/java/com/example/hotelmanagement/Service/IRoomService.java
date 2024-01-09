@@ -8,8 +8,10 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 
 public interface IRoomService {
-    Room addNewRoom(MultipartFile photo, String roomType, BigDecimal roomPrice) throws IOException, SQLException;
+    Room addNewRoom(String photo, String roomType, BigDecimal roomPrice) throws IOException, SQLException;
+
+
     Boolean removeRoom(Long roomID);
 
-    Boolean updateRoom(Long roomID, Object...param);
+    Room updateRoom(Long roomID, Object...param);
 }
