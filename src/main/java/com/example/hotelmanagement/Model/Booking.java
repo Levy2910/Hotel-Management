@@ -63,4 +63,5 @@ public class Booking {
     public void setBookingConfirmationCode(String bookingConfirmationCode) {
         this.bookingConfirmationCode = bookingConfirmationCode;
     }
+
 }
